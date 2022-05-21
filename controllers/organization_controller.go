@@ -19,8 +19,10 @@ package controllers
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	influxdb "github.com/influxdata/influxdb-client-go/v2"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -63,6 +65,8 @@ type OrganizationReconciler struct {
 //+kubebuilder:rbac:groups=paradox.macro.re,resources=organizations,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=paradox.macro.re,resources=organizations/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=paradox.macro.re,resources=organizations/finalizers,verbs=update
+
+//+kubebuilder:rbac:groups=apps,resources=secrets,verbs=get
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -153,14 +157,39 @@ func forEachInstanceClient(
 				return err
 			}
 
-			// TODO(georgemac): remove hard requirement for token when support is added
-			// for secret retrieval
-			if auth.Type != paradoxv1alpha1.InstanceAuthorizationTypeToken ||
-				auth.Token == nil {
-				return ErrOrgHasNoAuthorization
+			var token string
+			switch auth.Type {
+			case paradoxv1alpha1.InstanceAuthorizationTypeToken:
+				if auth.Token == nil {
+					return fmt.Errorf("token auth: %w", ErrOrgHasNoAuthorization)
+				}
+				token = *auth.Token
+				break
+
+			case paradoxv1alpha1.InstanceAuthorizationTypeSecret:
+				var secret corev1.Secret
+				if err := client.Get(ctx, types.NamespacedName{
+					Namespace: auth.Secret.Namespace,
+					Name:      auth.Secret.Name,
+				}, &secret); err != nil {
+					return err
+				}
+
+				tokenBytes, ok := secret.Data[auth.Secret.Key]
+				if !ok {
+					return fmt.Errorf(
+						"secret '%s/%s' key %s auth: %w",
+						auth.Secret.Namespace,
+						auth.Secret.Name,
+						auth.Secret.Key,
+						ErrOrgHasNoAuthorization,
+					)
+				}
+
+				token = string(tokenBytes)
 			}
 
-			return fn(&instance, influxdb.NewClient(instance.Spec.Address, *auth.Token))
+			return fn(&instance, influxdb.NewClient(instance.Spec.Address, token))
 		}
 	}
 

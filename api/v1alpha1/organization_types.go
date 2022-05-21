@@ -36,12 +36,13 @@ type InstanceAuthorization struct {
 	Type InstanceAuthorizationType `json:"type"`
 
 	Token  *string    `json:"token,omitempty"`
-	Secret *SecretRef `json:"secret,omitempty"`
+	Secret *SecretRef `json:"secretRef,omitempty"`
 }
 
 type SecretRef struct {
 	Namespace string `json:"namespace"`
 	Name      string `json:"name"`
+	Key       string `json:"key"`
 }
 
 //+kubebuilder:validation:Enum=token;secret

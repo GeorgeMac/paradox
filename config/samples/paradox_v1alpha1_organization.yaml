@@ -10,3 +10,9 @@ spec:
       local:
         type: token
         token: <INSERT TOKEN HERE>
+      remote:
+        type: secret
+        secretRef:
+          namespace: influx
+          name: remote-instance-token
+          key: token

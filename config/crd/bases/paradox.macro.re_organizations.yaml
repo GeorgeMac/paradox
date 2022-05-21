@@ -47,13 +47,16 @@ spec:
                 additionalProperties:
                   additionalProperties:
                     properties:
-                      secret:
+                      secretRef:
                         properties:
+                          key:
+                            type: string
                           name:
                             type: string
                           namespace:
                             type: string
                         required:
+                        - key
                         - name
                         - namespace
                         type: object
