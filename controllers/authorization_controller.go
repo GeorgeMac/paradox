@@ -17,11 +17,15 @@ limitations under the License.
 package controllers
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"html/template"
 
 	influxdb "github.com/influxdata/influxdb-client-go/v2"
 	"github.com/influxdata/influxdb-client-go/v2/domain"
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -78,13 +82,9 @@ func (r *AuthorizationReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 
 	if err := forEachInstanceClient(ctx, r.Client, &organization, func(instance *paradoxv1alpha1.Instance, iclient influxdb.Client) error {
 		namespace, name := instance.ObjectMeta.Namespace, instance.ObjectMeta.Name
-		wrapErr := func(err error) error {
-			return fmt.Errorf("influx instance '%s/%s': %w", namespace, name, err)
-		}
-
 		orgInstance, ok := organization.Status.Instances[namespace][name]
 		if !ok || orgInstance.ID == nil {
-			return wrapErr(fmt.Errorf("organization does not have an ID"))
+			return fmt.Errorf("organization does not have an ID")
 		}
 
 		var (
@@ -126,7 +126,7 @@ func (r *AuthorizationReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 
 					perm.Resource.Id = toStringPtr(bucketInstance.ID)
 				default:
-					return wrapErr(fmt.Errorf("unsupported resource type %q", perm.Resource.Type))
+					return fmt.Errorf("unsupported resource type %q", perm.Resource.Type)
 				}
 
 				*auth.Permissions = append(*auth.Permissions, perm)
@@ -135,13 +135,49 @@ func (r *AuthorizationReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 			var err error
 			auth, err = authAPI.CreateAuthorization(ctx, auth)
 			if err != nil {
-				return wrapErr(err)
+				return err
 			}
+
+			log.V(1).Info("Authorization created", "resource", *auth.Id)
 
 			status.Instances.AddInstance(
 				instance,
 				fromStringPtr[paradoxv1alpha1.InfluxID](auth.Id),
 			)
+
+			if spec := authorization.Spec.Token.SecretSpec; spec != nil {
+				nameTmpl, err := template.New("").Parse(spec.NameTemplate)
+				if err != nil {
+					return fmt.Errorf("attempting secret creation: %w", err)
+				}
+
+				var buf bytes.Buffer
+				if err := nameTmpl.Execute(&buf, struct {
+					Instance struct {
+						Namespace string
+						Name      string
+					}
+				}{
+					Instance: struct {
+						Namespace string
+						Name      string
+					}{namespace, name},
+				}); err != nil {
+					return fmt.Errorf("attempting secret creation: %w", err)
+				}
+
+				secret := &corev1.Secret{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      buf.String(),
+						Namespace: spec.Namespace,
+					},
+					StringData: map[string]string{
+						spec.Key: *auth.Token,
+					},
+				}
+
+				return r.Client.Create(ctx, secret)
+			}
 
 			return nil
 		}

@@ -31,6 +31,9 @@ type AuthorizationSpec struct {
 	// Permissions is the set of permissions (policy) associated
 	// with the authorization token.
 	Permissions []Permission `json:"permissions"`
+
+	// Token is a target in which to store the resulting token string
+	Token Token `json:"token"`
 }
 
 // Permission represents the ability to perform and action
@@ -54,6 +57,24 @@ type Resource struct {
 
 // ResourceType represents the type of a target resource.
 type ResourceType string
+
+// Token is a structure which identifies a destination for
+// the resulting secret token string generated when creating the
+// Authorization in a target instance.
+type Token struct {
+	SecretSpec *SecretSpec `json:"secretSpec,omitempty"`
+}
+
+// SecretSpec defines a specification for defining a Secret.
+type SecretSpec struct {
+	Namespace string `json:"namespace"`
+	// NameTemplate is a template which is supplied with details of the target
+	// instance associated with the token being stored.
+	NameTemplate string `json:"nameTemplate"`
+	// Key is the resulting key in the Secret data field under which the token
+	// will be stored.
+	Key string `json:"key"`
+}
 
 // AuthorizationStatus defines the observed state of Authorization
 type AuthorizationStatus struct {

@@ -77,10 +77,36 @@ spec:
                   - resource
                   type: object
                 type: array
+              token:
+                description: Token is a target in which to store the resulting token
+                  string
+                properties:
+                  secretSpec:
+                    description: SecretSpec defines a specification for defining a
+                      Secret.
+                    properties:
+                      key:
+                        description: Key is the resulting key in the Secret data field
+                          under which the token will be stored.
+                        type: string
+                      nameTemplate:
+                        description: NameTemplate is a template which is supplied
+                          with details of the target instance associated with the
+                          token being stored.
+                        type: string
+                      namespace:
+                        type: string
+                    required:
+                    - key
+                    - nameTemplate
+                    - namespace
+                    type: object
+                type: object
             required:
             - description
             - organization
             - permissions
+            - token
             type: object
           status:
             description: AuthorizationStatus defines the observed state of Authorization
