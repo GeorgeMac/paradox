@@ -1,0 +1,114 @@
+
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.7.0
+  creationTimestamp: null
+  name: authorizations.paradox.macro.re
+spec:
+  group: paradox.macro.re
+  names:
+    kind: Authorization
+    listKind: AuthorizationList
+    plural: authorizations
+    singular: authorization
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: Authorization is the Schema for the authorizations API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: AuthorizationSpec defines the desired state of Authorization
+            properties:
+              description:
+                description: Description is a string which describes any useful details
+                  regarding the purpose or identity of the authorization token.
+                type: string
+              organization:
+                description: Organization is the parent organization within which
+                  owns this authorization within the target InfluxData instance.
+                type: string
+              permissions:
+                description: Permissions is the set of permissions (policy) associated
+                  with the authorization token.
+                items:
+                  description: Permission represents the ability to perform and action
+                    on a target resource specifier.
+                  properties:
+                    action:
+                      description: Action specifies the verb which can be performed
+                        on a particular target resource specifier.
+                      enum:
+                      - read
+                      - write
+                      type: string
+                    resource:
+                      description: Resource represents a single or collection of resources
+                        of a single type.
+                      properties:
+                        name:
+                          type: string
+                        type:
+                          description: ResourceType represents the type of a target
+                            resource.
+                          type: string
+                      required:
+                      - name
+                      - type
+                      type: object
+                  required:
+                  - action
+                  - resource
+                  type: object
+                type: array
+            required:
+            - description
+            - organization
+            - permissions
+            type: object
+          status:
+            description: AuthorizationStatus defines the observed state of Authorization
+            properties:
+              instances:
+                additionalProperties:
+                  additionalProperties:
+                    properties:
+                      id:
+                        description: ID is the identifier which relates to the named
+                          resource in the target InfluxData instance.
+                        type: string
+                    type: object
+                  type: object
+                description: Instances is a map of namespace to map of name to resource
+                  instance.
+                type: object
+            required:
+            - instances
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []

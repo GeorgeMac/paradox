@@ -1,0 +1,9 @@
+apiVersion: paradox.macro.re/v1alpha1
+kind: Bucket
+metadata:
+  name: foo
+spec:
+  name: foo
+  organization: personal
+  description: A foo bucket
+  retention_policy: 10h

@@ -1,0 +1,6 @@
+apiVersion: paradox.macro.re/v1alpha1
+kind: Instance
+metadata:
+  name: local
+spec:
+  address: https://localhost:9999

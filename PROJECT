@@ -1,0 +1,43 @@
+domain: macro.re
+layout:
+- go.kubebuilder.io/v3
+projectName: paradox
+repo: macro.re/paradox
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: macro.re
+  group: paradox
+  kind: Organization
+  path: macro.re/paradox/api/v1alpha1
+  version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: macro.re
+  group: paradox
+  kind: Bucket
+  path: macro.re/paradox/api/v1alpha1
+  version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: macro.re
+  group: paradox
+  kind: Authorization
+  path: macro.re/paradox/api/v1alpha1
+  version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: macro.re
+  group: paradox
+  kind: Instance
+  path: macro.re/paradox/api/v1alpha1
+  version: v1alpha1
+version: "3"

@@ -1,0 +1,16 @@
+apiVersion: paradox.macro.re/v1alpha1
+kind: Authorization
+metadata:
+  name: foo-read-write-token
+spec:
+  organization: personal
+  description: A foo bucket read/write token
+  permissions:
+    - action: read
+      resource:
+        type: buckets
+        name: foo
+    - action: write
+      resource:
+        type: buckets
+        name: foo

@@ -1,0 +1,12 @@
+apiVersion: paradox.macro.re/v1alpha1
+kind: Organization
+metadata:
+  name: personal
+spec:
+  name: gmacrorie@influxdata.com
+  description: My personal Influx Org
+  instance_refs:
+    influx:
+      local:
+        type: token
+        token: <INSERT TOKEN HERE>

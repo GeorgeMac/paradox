@@ -1,0 +1,24 @@
+# permissions for end users to edit authorizations.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: authorization-editor-role
+rules:
+- apiGroups:
+  - paradox.macro.re
+  resources:
+  - authorizations
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - paradox.macro.re
+  resources:
+  - authorizations/status
+  verbs:
+  - get

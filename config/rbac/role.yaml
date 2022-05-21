@@ -1,0 +1,112 @@
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: manager-role
+rules:
+- apiGroups:
+  - paradox.macro.re
+  resources:
+  - authorizations
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - paradox.macro.re
+  resources:
+  - authorizations/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - paradox.macro.re
+  resources:
+  - authorizations/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - paradox.macro.re
+  resources:
+  - buckets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - paradox.macro.re
+  resources:
+  - buckets/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - paradox.macro.re
+  resources:
+  - buckets/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - paradox.macro.re
+  resources:
+  - instances
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - paradox.macro.re
+  resources:
+  - instances/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - paradox.macro.re
+  resources:
+  - instances/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - paradox.macro.re
+  resources:
+  - organizations
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - paradox.macro.re
+  resources:
+  - organizations/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - paradox.macro.re
+  resources:
+  - organizations/status
+  verbs:
+  - get
+  - patch
+  - update
