@@ -1,0 +1,19 @@
+name: test
+
+on:
+  push:
+
+jobs:
+  dagger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
+      - name: Test
+        uses: dagger/dagger-for-github@v3
+        # See all options at https://github.com/dagger/dagger-for-github
+        with:
+          version: 0.2
+          cmds: |
+            project update
+            do test
